@@ -3,6 +3,8 @@ import datetime
 import webbrowser
 import time
 import pyttsx3
+import requests
+from bs4 import BeautifulSoup
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 engine.setProperty('voice',voices[0].id)
@@ -30,33 +32,54 @@ def record_audio(ask = False):
     except sr.RequestError:
         speak('Sorry my speech service is down') 
     return voice_data          
-def num_maker(wlst):
-    num2words1 = {1: 'one', 2: 'two', 3: 'Three', 4: 'Four', 5: 'Five', \
-            6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten', \
-            11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen', \
-            15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen'}  
-    intlst = list(num2words1.keys())
-    worlist = list(num2words1.values())        
-    slst = []
-    for i in wlst:
-        if i in worlist:
-            m = intlst[worlist.index(i)]
-            slst.append(m)
-    return slst[0],slst[1]        
-def calc(a,b,voice_data):
-    if 'add' or 'sum' in voice_data:
-        re = a+b
-        speak('the result of addition of'+str(a)+'and'+str(b)+'is'+str(re))
-    if 'subract' or 'difference' in voice_data:
-        re = a-b
-        speak('the result of subraction of'+str(a)+'and'+str(b)+'is'+str(re))
-    if 'product' or 'multiply' in voice_data:
-        re = a*b
-        speak('the result of multiplication of'+str(a)+'and'+str(b)+'is'+str(re))
-    if 'div' in voice_data:
-        re = a/b
-        speak('the result of division of'+str(a)+'and'+str(b)+'is'+str(re))            
-    
+# def num_maker(wlst):
+#     num2words1 = {1: 'one', 2: 'two', 3: 'Three', 4: 'Four', 5: 'Five', \
+#             6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten', \
+#             11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen', \
+#             15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen'}  
+#     intlst = list(num2words1.keys())
+#     worlist = list(num2words1.values())        
+#     slst = []
+#     for i in wlst:
+#         if i in worlist:
+#             m = intlst[worlist.index(i)]
+#             slst.append(m)
+#     return slst[0],slst[1]        
+# def calc(a,b,voice_data):
+#     if 'add' or 'sum' in voice_data:
+#         re = a+b
+#         speak('the result of addition of'+str(a)+'and'+str(b)+'is'+str(re))
+#     if 'subract' or 'difference' in voice_data:
+#         re = a-b
+#         speak('the result of subraction of'+str(a)+'and'+str(b)+'is'+str(re))
+#     if 'product' or 'multiply' in voice_data:
+#         re = a*b
+#         speak('the result of multiplication of'+str(a)+'and'+str(b)+'is'+str(re))
+#     if 'div' in voice_data:
+#         re = a/b
+#         speak('the result of division of'+str(a)+'and'+str(b)+'is'+str(re))            
+def carona(voice_data):
+    if 'active' in voice_data:
+        x = 'blue'
+    elif 'deaths' in voice_data:
+        x = 'red'
+    elif 'recovery'in voice_data:
+        x = 'green'
+    elif 'migrated' in voice_data:
+        x = 'orange'    
+
+
+    mhaw = requests.get('https://www.mohfw.gov.in/')
+    soup = BeautifulSoup(mhaw.content, 'html.parser')
+    status = soup.select('.bg-'+x)
+    actstr = str(status[0])
+    # print(actstr)
+    splv2 = actstr.split('strong>')
+    # print(splv2)
+    sth = splv2[1]
+    num = sth[:-2]
+    print(num)
+    speak('The number in India is '+str(num))    
 
 
 
@@ -118,11 +141,12 @@ def respond():
                 url = 'https://hashwanth531.blogspot.com/'    
                 webbrowser.get().open(url)
                 speak('This is the blogspot of hashwanth, he put all the cool stuff over there')
-    if 'add' or 'sum' or 'diffrence' or 'subract' or 'product' or 'multiply' or 'div' in voice_data:
-        wlst = voice_data.split()
-        a,b = num_maker(wlst)
-        calc(a,b,voice_data)
-                
+    # if 'add' or 'sum' or 'diffrence' or 'subract' or 'product' or 'multiply' or 'div' in voice_data:
+    #     wlst = voice_data.split()
+    #     a,b = num_maker(wlst)
+    #     calc(a,b,voice_data)
+    if 'virus' in voice_data:
+        carona(voice_data)            
     
 
     if 'exit' in voice_data:
